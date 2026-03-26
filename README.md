@@ -39,6 +39,7 @@ Audio (MP3) + Text (TXT)
 ├── update_ar_text.py      # Step 5 — Replace aya text with clearer tashkeel from database.json
 ├── test_api.py            # Utility — Verify alquran.cloud API returns all 6,236 ayas
 ├── database.json          # Quran text with full tashkeel (sourced separately)
+├── sheikhs.json           # Contains all info about all sheikh for downloading data from api
 └── data/
     └── quran_timestamps.json   # Final output — used by the web player
 ```
