@@ -7,7 +7,7 @@ A complete **Android application** for Quran memorizers to track, classify, and 
 ---
 
 <div style="text-align: center;">
-  <img src="Gemini_Generated_Image_rt0sgfrt0sgfrt0s.png" alt="Tathbeet Logo" width="220"/>
+  <img src="logo.png" alt="Tathbeet Logo" width="220"/>
 </div>
 
 ---
