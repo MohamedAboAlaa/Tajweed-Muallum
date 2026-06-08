@@ -1,253 +1,181 @@
-# 🕌 Quran Word-Level Timestamps
+# 🕌 Tathbeet — تثبيت | Smart Quran Memorization Tracker
 
-A complete pipeline for generating **word-level audio timestamps** for the Holy Quran, recited by **Sheikh Mahmoud Khalil Al-Husary**, with a web player that highlights each word in sync with the audio.
+A complete **Android application** for Quran memorizers to track, classify, and analyze their recitation mistakes word by word — with a built-in audio player, color-coded error system, and a personal analytics dashboard.
 
-Link: <https://incredible-lollipop-7e69a1.netlify.app/>
+> **Download:** [`tathbeet.apk`](./tathbeet.apk)
 
 ---
 
 <div style="text-align: center;">
-  <img src="img.png" alt="Project Screenshot">
+  <img src="Gemini_Generated_Image_rt0sgfrt0sgfrt0s.png" alt="Tathbeet Logo" width="220"/>
 </div>
 
+---
 
 ## 📌 Project Overview
 
-This project takes Quranic audio (aya-level MP3s) and produces a structured JSON file where every word has an exact `start` and `end` timestamp. The final output powers a web player that highlights each word as it is recited.
+Tathbeet (تثبيت — meaning "to firmly establish") is a personal Quran companion app. It loads the full Quran with word-level audio timestamps, lets the user tap any word to log a mistake, and builds a visual analytics dashboard showing weak spots across all 114 surahs.
 
 ```
-Audio (MP3) + Text (TXT)
+Word-Level Timestamps JSON (quran_timestamps.json)
+        +
+Quran Audio (alquran.cloud CDN)
         ↓
-  WhisperX Forced Alignment
+  Android WebView App (Capacitor + Gradle)
         ↓
-  quran_timestamps.json
-  { surah → aya → word → [start, end] }
-        ↓
-  Web Player (HTML/CSS/JS)
-  Word-by-word highlighting
+  ┌─────────────────────────────────┐
+  │  Splash Screen (splash.html)    │
+  │  ↓                              │
+  │  Quran Player + Error Logger    │
+  │  ↓                              │
+  │  Analytics Dashboard            │
+  └─────────────────────────────────┘
 ```
 
 ---
 
-## 🗂️ Repository Structure
+## 🗂️ Project Structure
 
 ```
-├── downloader.py          # Step 1 — Download audio + text from alquran.cloud API
-├── fix_basmala.py         # Step 2 — Remove Basmala from first aya text files
-├── align_all_mushaf.py    # Step 3 — Run WhisperX forced alignment → quran_timestamps.json
-├── check_empty.py         # Step 4 — Verify no empty ayas in the output JSON
-├── update_ar_text.py      # Step 5 — Replace aya text with clearer tashkeel from database.json
-├── test_api.py            # Utility — Verify alquran.cloud API returns all 6,236 ayas
-├── database.json          # Quran text with full tashkeel (sourced separately)
-├── sheikhs.json           # Contains all info about all sheikh for downloading data from api
-└── data/
-    └── quran_timestamps.json   # Final output — used by the web player
+├── www/
+│   ├── index.html              # Entry point (splash screen)
+│   ├── main.html               # Main app — Quran player + dashboard
+│   ├── landing.html            # Public landing page for APK download
+│   ├── style.css               # Full app styling
+│   ├── main.js                 # App logic — player, error tracking, charts
+│   └── data/
+│       └── quran_timestamps.json   # Word-level timestamps (from pipeline)
+├── android/                    # Capacitor Android project (Gradle)
+├── capacitor.config.json       # Capacitor configuration
+├── tathbeet.apk                # ⬅️ Ready-to-install Android APK
+└── Gemini_Generated_Image_rt0sgfrt0sgfrt0s.png   # App logo
 ```
 
 ---
 
-## ⚙️ Pipeline — Step by Step
+## 📱 App Features
 
-### Step 1 — Download Data
-**File:** `downloader.py`
+### 🔴 One-Tap Error Logging
+Tap any word in the Mushaf while reviewing. A modal opens instantly — select the error type, add an optional note, and continue reciting without interruption.
 
-Downloads all 6,236 aya audio files (MP3) and their text from the [alquran.cloud](https://alquran.cloud) API.
+### 🎨 Smart Color-Coded Classification
+Three distinct error types, color-coded for instant visual recognition:
 
-- Audio edition: `ar.husary`
-- Text edition: `quran-simple`
-- Uses 10 parallel threads for faster download
-- Saves to `Quran_Database/{surah_folder}/{aya_num}.mp3` and `.txt`
+| Color | Type | Description |
+|-------|------|-------------|
+| 🔴 Red | نسيان / حفظ | Memorization lapse — forgot the word entirely |
+| 🟠 Orange | تشكيل / لحن جلي | Tashkeel error — wrong diacritics or vowels |
+| 🔵 Blue | تجويد / لحن خفي | Tajweed error — incorrect recitation rules |
 
+### 🎵 Quran Audio Player
+- Supports all 114 surahs, any aya range
+- Multiple reciters via alquran.cloud CDN
+- Word-by-word audio sync and highlighting
+- Custom start aya selection mid-session
+
+### 📊 Analytics Dashboard
+- Donut chart — distribution of error types
+- Bar chart — top 5 hardest surahs by error count
+- KPI cards — total errors, per-type breakdown, hardest surah
+- Error log table — last 10 errors with direct jump-to-word navigation
+
+### 🛡️ 100% Private & Offline-Ready
+All notes and errors are saved locally on the device using `localStorage`. No accounts, no servers, no ads, no subscriptions.
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | HTML, CSS, JavaScript (Vanilla) |
+| Charts | Chart.js |
+| Fonts | Scheherazade New, Cairo (Google Fonts) |
+| Audio | alquran.cloud CDN API |
+| Mobile Wrapper | Capacitor 5 |
+| Android Build | Gradle |
+| Timestamps Data | WhisperX + wav2vec2 (from pipeline) |
+
+---
+
+## ⚙️ App Pages
+
+### `index.html` — Splash Screen
+Animated entry screen showing the Tathbeet logo with orbit rings, gold particles, and a loading bar. Auto-redirects to `main.html` after 2 seconds.
+
+### `main.html` — Main Application
+Two-tab layout:
+- **القراءة والتسميع** — Quran reader with audio player and error logging
+- **لوحة التحليل** — Analytics dashboard with charts and error history
+
+### `landing.html` — Download Landing Page
+A full Arabic landing page for sharing the APK link publicly. Includes hero section, features grid, how-it-works steps, and a direct APK download button. Designed for mobile-first sharing.
+
+---
+
+## 🚀 Build & Installation
+
+### Prerequisites
+- Node.js 18+
+- Android Studio (with Android SDK)
+- Java 17+
+
+### Install Dependencies
 ```bash
-python downloader.py
+npm install
 ```
 
-Output structure:
-```
-Quran_Database/
-  001_Al-Faatiha/
-    001.mp3
-    001.txt
-    002.mp3
-    002.txt
-    ...
-  002_Al-Baqara/
-    ...
-```
-
----
-
-### Utility — Verify API Data
-**File:** `test_api.py`
-
-Quick sanity check that the API returned all 6,236 ayas for both text and audio before running alignment.
-
+### Sync Web Files to Android
 ```bash
-python test_api.py
+npx cap sync android
+npx cap copy android
 ```
 
----
-
-### Step 2 — Fix Basmala
-**File:** `fix_basmala.py`
-
-**Problem:** The alquran.cloud CDN includes "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ" prepended to the text of the first aya in every surah — but the audio files do **not** contain the Basmala. This mismatch breaks forced alignment.
-
-**Solution:** Strip the first 4 words (Basmala) from `001.txt` in every surah except:
-- Surah 1 (Al-Fatiha) — Basmala is part of the surah
-- Surah 9 (At-Tawba) — has no Basmala
-
+### Open in Android Studio
 ```bash
-python fix_basmala.py
+npx cap open android
 ```
 
----
-
-### Step 3 — Forced Alignment
-**File:** `align_all_mushaf.py`
-
-Runs **WhisperX forced alignment** on every aya to produce word-level timestamps.
-
-**Model used:** `wav2vec2` Arabic alignment model via WhisperX  
-**Hardware:** NVIDIA L4 GPU on [Lightning.ai](https://lightning.ai) Studio
-
-Each aya is processed as:
-```python
-segments = [{"text": aya_text, "start": 0.0, "end": duration}]
-result = whisperx.align(segments, model_a, metadata, audio, device)
+### Build APK
+In Android Studio:
+```
+Build → Build Bundle(s) / APK(s) → Build APK(s)
 ```
 
-Output for each word:
-```json
-{
-  "word": "بِسْمِ",
-  "start": 0.000,
-  "end": 1.316,
-  "score": 0.575
-}
+Output path:
+```
+android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-**Checkpoint support:** Saves after every surah — safe to resume if interrupted.
-
+### Install Directly (USB)
 ```bash
-python align_all_mushaf.py
+npx cap run android
 ```
 
 ---
 
-### Step 4 — Verify Output
-**File:** `check_empty.py`
+## 📲 Direct Install (No Build Needed)
 
-Scans the output JSON for any ayas with an empty `words` array, which would indicate a failed alignment.
+Download the pre-built APK directly:
 
-```bash
-python check_empty.py
-```
+**[⬇️ Download tathbeet.apk](./tathbeet.apk)**
 
----
+1. Transfer `tathbeet.apk` to your Android device
+2. Open the file — you may need to allow **"Install from unknown sources"** in Settings → Security
+3. Install and open **تثبيت**
 
-### Step 5 — Update Aya Text
-**File:** `update_ar_text.py`
-
-**Problem:** The text from alquran.cloud (`quran-simple`) lacks clear tashkeel (diacritics), proper waqf markers, and uses inconsistent Unicode representations. This makes the text hard to read in the web player.
-
-**Solution:** Replace the `text` field in `quran_timestamps.json` with cleaner Arabic text from `database.json`, which was sourced separately with full and consistent tashkeel.
-
-Additionally filters out any malformed words from the `words` array:
-- Words shorter than 2 characters (after removing diacritics)
-- Words containing no Arabic characters
-
-```bash
-python update_ar_text.py
-```
+> **Requires Android 6.0 (API 23) or higher.**
 
 ---
 
-## 🚧 Challenges & Solutions
+## 📄 Data — Word-Level Timestamps
 
-### 1. Data Size & Processing Power
+The app uses `quran_timestamps.json` generated by a separate alignment pipeline:
 
-**Problem:** The full Quran dataset is ~2.5GB of audio (6,236 MP3 files). Running WhisperX alignment locally would take days.
-
-**Solution:** Used a free [Lightning.ai](https://lightning.ai) Studio with an **NVIDIA L4 GPU**. Downloaded the data directly inside the studio, ran alignment there, and exported the resulting JSON.
-
----
-
-### 2. Basmala Mismatch
-
-**Problem:** Every surah's first aya text file from the CDN contained the Basmala prepended to the actual aya text — but the audio file only contained the aya itself, not the Basmala. Feeding mismatched text and audio to WhisperX caused completely wrong timestamps for the entire first aya.
-
-**Solution:** `fix_basmala.py` strips the first 4 words from the text of aya 1 in every surah (except Al-Fatiha and At-Tawba) before running alignment. The Basmala is then displayed separately in the web player as a decorative header, without any audio alignment.
-
----
-
-### 3. Reciter Repeating Words (Waqf & Ibtida)
-
-**Problem:** Sheikh Al-Husary sometimes stops mid-aya and restarts from a few words back (a practice called *waqf and ibtida* — pausing and resuming). This means the audio contains repeated words that don't exist in the reference text. Feeding the reference text directly to WhisperX forced alignment caused timestamp shifting for all subsequent words.
-
-**Solution:** Switched to a two-step approach using **DTW (Dynamic Time Warping)** sequence alignment:
-
-1. Transcribe the audio without any reference text — WhisperX hears and writes exactly what was said, including repetitions
-2. Run forced alignment on the transcription to get accurate timestamps
-3. Use a **Needleman-Wunsch** sequence alignment algorithm to match the transcribed words (with repetitions) back to the clean reference text — the algorithm correctly identifies and skips the repeated segments
-
-This ensures timestamps reflect the **first occurrence** of each word, so the web player highlights the word at the right moment and skips the repeated portion without showing incorrect highlighting.
-
----
-
-### 4. Poor Text Tashkeel from CDN
-
-**Problem:** The text from alquran.cloud (`quran-simple`) had inconsistent or missing diacritics, which made the Quranic text hard to read in the web player. The tashkeel also differed from the standard Uthmani script used in printed Mushafs.
-
-**Solution:** Sourced a separate `database.json` with full, clearly-written tashkeel. `update_ar_text.py` replaces only the `text` field in `quran_timestamps.json` while keeping all word timestamps intact. Word matching in the web player uses `stripDiacritics()` to handle any remaining differences between the display text and the timestamp words.
-
----
-
-## 🌐 Web Player
-
-The web player (`index.html` + `main.js`) loads data from `data/quran_timestamps.json` and audio from the alquran.cloud CDN.
-
-**Features:**
-- Select any surah and aya range
-- Play / Pause / Stop / Restart controls
-- Word-by-word highlighting synchronized to audio
-- Basmala displayed as a styled header (no alignment) for non-Fatiha surahs
-- Aya separator marker `۝` with Arabic numerals
-- Arabic surah names with aya range display
-
-**To run locally:**
-```bash
-# Serve with any static file server
-python -m http.server 8000
-# Open http://localhost:8000
-```
-
----
-
-## 📊 Dataset Stats
-
-| | |
-|--|--|
-| Reciter | Sheikh Mahmoud Khalil Al-Husary |
-| Surahs | 114 |
-| Ayas | 6,236 |
-| Words aligned | ~77,000 |
-| Audio format | MP3, 128kbps |
-| Alignment model | WhisperX + wav2vec2 Arabic |
-
----
-
-## 🛠️ Requirements
-
-```bash
-pip install whisperx torch torchaudio librosa requests tqdm
-```
-
-GPU recommended for alignment (NVIDIA L4 or equivalent).
-
----
-
-## 📄 JSON Structure
+- **Reciter:** Sheikh Mahmoud Khalil Al-Husary
+- **Alignment model:** WhisperX + wav2vec2 Arabic
+- **Coverage:** 114 surahs, 6,236 ayas, ~77,000 words
+- **Format:**
 
 ```json
 {
@@ -274,6 +202,15 @@ GPU recommended for alignment (NVIDIA L4 or equivalent).
 
 ## 🙏 Acknowledgements
 
-- Audio: [alquran.cloud](https://alquran.cloud) API
+- Audio & Text: [alquran.cloud](https://alquran.cloud) API
 - Alignment: [WhisperX](https://github.com/m-bain/whisperX)
-- Compute: [Lightning.ai](https://lightning.ai) Studios
+- Compute for alignment pipeline: [Lightning.ai](https://lightning.ai) Studios (NVIDIA L4 GPU)
+- App logo: Generated with Google Gemini
+
+---
+
+## 📜 License & Intent
+
+This application is a **charitable work (صدقة جارية)** — built with the sole intention of serving the people of the Quran. It is free, ad-free, and open for anyone to use, learn from, or build upon.
+
+> لا إعلانات · لا اشتراكات · لا تتبع · بياناتك على جهازك فقط
